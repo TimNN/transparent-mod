@@ -12,6 +12,9 @@ repository = "https://github.com/TimNN/tmod"
 documentation = "https://docs.rs/tmod"
 homepage = "https://github.com/TimNN/tmod"
 
+description = "Transparent Modules for Rust."
+categories = ["development-tools"]
+
 [lib]
 proc-macro = true
 
