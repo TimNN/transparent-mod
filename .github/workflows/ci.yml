@@ -1,0 +1,46 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+  schedule:
+    # Daily, at a semi-randomly chosen time.
+    - cron: "37 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: 'ubuntu-slim'
+    strategy:
+      matrix:
+        rust: ["1.85", "stable", "beta", "nightly"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+          components: clippy, rustfmt
+
+      - name: Check Format
+        if: ${{ matrix.rust == 'stable' }}
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Documentation
+        run:
+          cargo doc --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+
+      - name: Tests
+        run: cargo test
