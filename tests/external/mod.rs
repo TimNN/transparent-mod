@@ -1,4 +1,4 @@
-use tmod::transparent;
+use transparent_mod::transparent;
 
 pub fn external() -> &'static str {
     module_path!()

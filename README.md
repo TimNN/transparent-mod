@@ -1,34 +1,40 @@
-# `tmod`: Transparent Modules
+# Transparent Modules for Rust
 
 <!-- Parts of this README are based on https://github.com/dtolnay's setup. -->
 <!-- Badge colors were picked from https://uchu.style/. -->
 
-[<img alt="github" src="https://img.shields.io/badge/github-timnn/tmod-afecb6?style=for-the-badge&logo=github" height="20">](https://github.com/TimNN/tmod)
-[<img alt="crates.io" src="https://img.shields.io/crates/v/tmod?style=for-the-badge&logo=rust&color=3984f2" height="20">](https://crates.io/crates/tmod)
-[<img alt="docs.rs" src="https://img.shields.io/badge/docs.rs-tmod-c7abe9?style=for-the-badge&logo=docs.rs" height="20">](https://docs.rs/tmod)
-<img alt="license" src="https://img.shields.io/crates/l/tmod?style=for-the-badge&color=e3e5e5" height="20">
-[<img alt="CI" src="https://img.shields.io/github/actions/workflow/status/TimNN/tmod/ci.yml?style=for-the-badge" height="20">](https://github.com/TimNN/tmod/actions/workflows/ci.yml)
+[<img alt="github" src="https://img.shields.io/badge/github-timnn/transparent-mod-afecb6?style=for-the-badge&logo=github" height="20">](https://github.com/TimNN/transparent-mod)
+[<img alt="crates.io" src="https://img.shields.io/crates/v/transparent-mod?style=for-the-badge&logo=rust&color=3984f2" height="20">](https://crates.io/crates/transparent-mod)
+[<img alt="docs.rs" src="https://img.shields.io/badge/docs.rs-transparent-mod-c7abe9?style=for-the-badge&logo=docs.rs" height="20">](https://docs.rs/transparent-mod)
+<img alt="license" src="https://img.shields.io/crates/l/transparent-mod?style=for-the-badge&color=e3e5e5" height="20">
+[<img alt="CI" src="https://img.shields.io/github/actions/workflow/status/TimNN/transparent-mod/ci.yml?style=for-the-badge" height="20">](https://github.com/TimNN/transparent-mod/actions/workflows/ci.yml)
 
-This crate provides the `#[transparent]` macro, making a module effectively 
+This crate provides the `#[transparent]` macro, making a module effectively
 transparent:
 
 ```rust <!--empty-main-->
-use tmod::transparent;
+use transparent_mod::transparent;
 
 #[transparent(pub)]
-mod foo {}  // `{}` is special-cased and changed to `;`.
+mod foo { /* ... */ }
+
+#[transparent]
+pub mod bar;
 ```
 
 results in
 
 ```rust <!--empty-main-->
-mod foo;
+mod foo { /* ... */ }
 pub use self::foo::*;
+
+pub mod bar;
+pub(self) use self::bar::*;
 ```
 
-Note that a plain `#[transparent] mod foo;` does not work on stable, and 
-rust-analyzer will not properly analyze the alternative `#[transparent] mod foo
-{}` syntax implemented by this macro.
+> [!IMPORTANT]
+> Using the `#[transparent]` macro with `mod bar;` (an external
+> module) requires at least Rust 1.100 or `#![feature(proc_macro_hygiene)]`.
 
 <!-- readme-license-begin -->
 

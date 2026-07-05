@@ -13,7 +13,7 @@ mod util;
 /// For a given `mod foo`, this effectively adds a `use self::foo::*`
 /// automatically.
 ///
-/// The module keeps the visibility as specified (i.e. as `pub mod` will remain
+/// The module keeps the visibility as specified (i.e. a `pub mod` will remain
 /// a `pub mod`).
 ///
 /// The visibility of the module's contents can be specified as an argument to
@@ -23,13 +23,8 @@ mod util;
 /// The macro supports both, inline (`mod foo { /*...*/ }`) and external (`mod
 /// foo;`) modules.
 ///
-/// Since proc macros on external modules are unstable, the macro transforms
-/// internal modules specified as `mod foo {}` (where `{}` is a literal
-/// two-character string; no whitespace or comments) as external. That is,
-/// `#[transparent] mod foo {}` will result in `mod foo;`.
-///
 /// Note that the macro does not work if the resulting module cannot be named,
-/// i.e. `fn foo() { #[transparent] mod bar {} }` will fail to compile.
+/// i.e. `fn foo() { #[transparent] mod foo {} }` will fail to compile.
 #[proc_macro_attribute]
 pub fn transparent(attr: TokenStream, item: TokenStream) -> TokenStream {
     Error::reporting(item.clone(), || {
@@ -47,14 +42,10 @@ pub fn transparent(attr: TokenStream, item: TokenStream) -> TokenStream {
 
         let mod_ident = p.collect(Parser::ident)?;
 
-        let mut body = match p.maybe(sym(';')) {
+        let body = match p.maybe(sym(';')) {
             true => None,
             false => Some(p.collect(|p| p.expect(brace_tree))?),
         };
-
-        if body.as_ref().is_some_and(is_empty_brace_literal) {
-            body = None;
-        }
 
         Ok(tokens![
             attrs,
@@ -77,13 +68,4 @@ pub fn transparent(attr: TokenStream, item: TokenStream) -> TokenStream {
             @"::*;"
         ])
     })
-}
-
-fn is_empty_brace_literal(s: &TokenStream) -> bool {
-    let mut s = s.clone().into_iter();
-    let Some(tkn) = s.next() else { return false };
-    if s.next().is_some() {
-        return false;
-    }
-    tkn.span().source_text().is_some_and(|s| s == "{}")
 }

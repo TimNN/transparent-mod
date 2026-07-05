@@ -14,10 +14,14 @@ permissions:
 
 jobs:
   test:
-    runs-on: 'ubuntu-slim'
+    runs-on: "ubuntu-slim"
     strategy:
       matrix:
-        rust: ["1.85", "stable", "beta", "nightly"]
+        rust:
+          - { version: "1.85",    unstable: true }
+          - { version: "stable",  unstable: true }
+          - { version: "beta",    unstable: true }
+          - { version: "nightly", unstable: true }
 
     steps:
       - name: Checkout Repository
@@ -26,21 +30,24 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: ${{ matrix.rust }}
+          toolchain: ${{ matrix.rust.version }}
           components: clippy, rustfmt
 
       - name: Check Format
-        if: ${{ matrix.rust == 'stable' }}
+        if: ${{ matrix.rust.version == 'stable' }}
         run: cargo fmt --all --check
 
       - name: Clippy
         run: cargo clippy -- -D warnings
 
       - name: Documentation
-        run:
-          cargo doc --no-deps
+        run: cargo doc --no-deps
         env:
           RUSTDOCFLAGS: -D warnings
 
       - name: Tests
         run: cargo test
+        env:
+          RUSTC_BOOTSTRAP: ${{ matrix.rust.unstable && '1' || '' }}
+          RUSTFLAGS: ${{ matrix.rust.unstable && '--cfg=outlined_unstable' || '' }}
+          RUSTDOCFLAGS: ${{ matrix.rust.unstable && '--cfg=outlined_unstable' || '' }}

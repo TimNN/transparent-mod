@@ -1,15 +1,17 @@
-use tmod::transparent;
+#![cfg_attr(outlined_unstable, feature(proc_macro_hygiene))]
+
+use transparent_mod::transparent;
 
 #[transparent]
-mod external {}
+mod external;
 
 #[transparent]
 #[path = "path/arbitrary.rs"]
-mod via_path {}
+mod via_path;
 
 #[transparent]
 mod inline {
-    use tmod::transparent;
+    use transparent_mod::transparent;
 
     #[transparent(pub)]
     mod nested {
