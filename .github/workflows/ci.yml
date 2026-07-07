@@ -18,10 +18,10 @@ jobs:
     strategy:
       matrix:
         rust:
-          - { version: "1.85",    unstable: true }
-          - { version: "stable",  unstable: true }
-          - { version: "beta",    unstable: true }
-          - { version: "nightly", unstable: true }
+          - { version: "1.85",   unstable: true }
+          - { version: "stable", unstable: true }
+          - { version: "beta",   unstable: true }
+          - { version: "nightly" }
 
     steps:
       - name: Checkout Repository
